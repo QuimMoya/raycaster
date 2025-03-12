@@ -8,6 +8,7 @@ import { Bbox } from "./geometries/bbox";
 import { Extrude } from "./geometries/extrude";
 import { CurveParabola } from "./geometries/parabola";
 import { CurveClothoid } from './geometries/clothoid';
+import { CurveArc } from "./geometries/arc";
 
 async function main() {
   // Set up scene
@@ -72,14 +73,25 @@ async function main() {
   // gui.add(parabola, "startGradient", -10, 10, 0.05).onChange(() => parabola.update(api));
   // gui.add(parabola, "endGradient", -10, 10, 0.05).onChange(() => parabola.update(api));
 
-  // CLOTHOID
-  const clothoid = new CurveClothoid(api);
-  world.scene.three.add(clothoid.mesh);
-  gui.add(clothoid, "segments", 3, 100, 1).onChange(() => clothoid.update(api));
-  gui.add(clothoid, "ifcStartDirection", 1, 10, 0.05).onChange(() => clothoid.update(api));
-  gui.add(clothoid, "StartRadiusOfCurvature", 1, 10, 0.05).onChange(() => clothoid.update(api));
-  gui.add(clothoid, "EndRadiusOfCurvature", -10, 10, 0.05).onChange(() => clothoid.update(api));
-  gui.add(clothoid, "SegmentLength", -10, 10, 0.05).onChange(() => clothoid.update(api));
+  // // CLOTHOID
+  // const clothoid = new CurveClothoid(api);
+  // world.scene.three.add(clothoid.mesh);
+  // gui.add(clothoid, "segments", 3, 100, 1).onChange(() => clothoid.update(api));
+  // gui.add(clothoid, "ifcStartDirection", 1, 10, 0.05).onChange(() => clothoid.update(api));
+  // gui.add(clothoid, "StartRadiusOfCurvature", 1, 10, 0.05).onChange(() => clothoid.update(api));
+  // gui.add(clothoid, "EndRadiusOfCurvature", -10, 10, 0.05).onChange(() => clothoid.update(api));
+  // gui.add(clothoid, "SegmentLength", -10, 10, 0.05).onChange(() => clothoid.update(api));
+
+  // Arc
+  const arc = new CurveArc(api);
+  world.scene.three.add(arc.mesh);
+  gui.add(arc, "numSegments", 3, 100, 1).onChange(() => arc.update(api));
+  gui.add(arc, "radiusX", 1, 10, 0.05).onChange(() => arc.update(api));
+  gui.add(arc, "radiusY", 1, 10, 0.05).onChange(() => arc.update(api));
+  gui.add(arc, "startRad", 0, 6.28, 0.05).onChange(() => arc.update(api));
+  gui.add(arc, "endRad", 0, 6.28, 0.05).onChange(() => arc.update(api));
+  gui.add(arc, "swap").onChange(() => arc.update(api));
+  gui.add(arc, "normalToCenterEnding").onChange(() => arc.update(api));
 }
 
 main();

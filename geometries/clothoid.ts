@@ -1,4 +1,4 @@
-import {Parabola, Clothoid} from "web-ifc";
+import {Clothoid} from "web-ifc";
 import * as WEBIFC from "web-ifc";
 import * as THREE from "three";
 import { BimCurve } from "./bim-curve";
