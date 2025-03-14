@@ -6,13 +6,12 @@ import { CurveArc } from "./geometries/arc";
 
 export class CivilReader {
   defLineMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+  redLineMat = new THREE.LineBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
 
   read(webIfc: WEBIFC.IfcAPI) {
     const IfcAlignment = webIfc.GetAllAlignments(0);
     const IfcCrossSection2D = webIfc.GetAllCrossSections2D(0);
     const IfcCrossSection3D = webIfc.GetAllCrossSections3D(0);
-
-    console.log(IfcAlignment);
 
     const civilItems = {
       IfcAlignment,
@@ -71,6 +70,8 @@ export class CivilReader {
 
       let { points } = curve;
 
+      const newPoints = [];
+
       if (
         curve.data &&
         curve.data.length > 4 &&
@@ -87,39 +88,31 @@ export class CivilReader {
         arc.startPosition = curve.points[0];
         arc.update(webIfc);
 
-        points = [];
-        console.log(arc.mesh.geometry.attributes.position);
+        // points = [];
+        // console.log(arc.mesh.geometry.attributes.position);
 
         for (let i = 0; i < arc.mesh.geometry.attributes.position.count; i++) {
-          points.push({
+          newPoints.push({
             x: arc.mesh.geometry.attributes.position.getX(i),
             y: arc.mesh.geometry.attributes.position.getY(i),
             z: arc.mesh.geometry.attributes.position.getZ(i),
           });
         }
       } else {
-        points = [];
+        // points = [];
       }
 
-      for (let i = 1; i < points.length; i++) {
-        points[i].x -= points[0].x;
-        points[i].y -= points[0].y;
-        points[i].z -= points[0].z;
-      }
+      const geometry = this.geometryFromPoints(points);
 
-      points[0] = new THREE.Vector3(0, 0, 0);
+      const geometry2 = this.geometryFromPoints(newPoints);
 
-      const array = new Float32Array(points.length * 3);
-      for (let i = 0; i < points.length; i++) {
-        const { x, y, z } = points[i];
-        array[i * 3] = x;
-        array[i * 3 + 1] = y;
-        array[i * 3 + 2] = z || 0;
-      }
-
-      const attr = new THREE.BufferAttribute(array, 3);
-      const geometry = new THREE.EdgesGeometry();
-      geometry.setAttribute("position", attr);
+      const mewMesh = new FRAGS.CurveMesh(
+        index,
+        data,
+        alignment,
+        geometry2,
+        this.redLineMat
+      );
 
       const mesh = new FRAGS.CurveMesh(
         index,
@@ -129,11 +122,26 @@ export class CivilReader {
         this.defLineMat
       );
 
-      console.log(mesh.curve);
+      mesh.curve.mesh.attach(mewMesh);
 
       curves.push(mesh.curve);
       index++;
     }
     return curves;
+  }
+
+  private geometryFromPoints(points: any) {
+    const array = new Float32Array(points.length * 3);
+    for (let i = 0; i < points.length; i++) {
+      const { x, y, z } = points[i];
+      array[i * 3] = x;
+      array[i * 3 + 1] = y;
+      array[i * 3 + 2] = z || 0;
+    }
+
+    const attr = new THREE.BufferAttribute(array, 3);
+    const geometry = new THREE.EdgesGeometry();
+    geometry.setAttribute("position", attr);
+    return geometry;
   }
 }

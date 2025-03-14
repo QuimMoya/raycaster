@@ -115,10 +115,16 @@ async function main() {
   // console.log(ifcCrossSection3D);
 
   for(const [,alignment] of alignments.alignments) {
-    for(const {mesh} of alignment.absolute) {
+    for(const {mesh} of alignment.horizontal) {
       world.scene.three.add(mesh);
     }
   }
+
+  // for(const [,alignment] of alignments.alignments) {
+  //   for(const {mesh} of alignment.absolute) {
+  //     world.scene.three.add(mesh);
+  //   }
+  // }
 
 }
 
