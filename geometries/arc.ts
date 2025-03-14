@@ -1,3 +1,4 @@
+import { Vector } from './../node_modules/web-ifc/web-ifc-api-node.d';
 import {Arc} from "web-ifc";
 import * as WEBIFC from "web-ifc";
 import * as THREE from "three";
@@ -6,7 +7,7 @@ import { BimCurve } from "./bim-curve";
 export class CurveArc extends BimCurve {
 
     core: Arc;
-
+    startPosition: THREE.Vector3 = new THREE.Vector3();
     radiusX: number = 1;
     radiusY: number = 1;
     numSegments: number = 12;
@@ -42,6 +43,6 @@ export class CurveArc extends BimCurve {
             this.normalToCenterEnding
         );
 
-        super.update(api);
+        super.update(api, this.startPosition);
     }
 }

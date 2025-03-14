@@ -95,7 +95,7 @@ async function main() {
   // gui.add(arc, "normalToCenterEnding").onChange(() => arc.update(api));
 
   // Open model
-
+  
   const fetched = await fetch("(E28)_CARRETERA_10.94_4X3.ifc");
   const arrayBuffer = await fetched.arrayBuffer();
   const uint8Array = new Uint8Array(arrayBuffer);

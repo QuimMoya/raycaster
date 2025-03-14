@@ -1,6 +1,8 @@
+import { Vector } from './node_modules/web-ifc/web-ifc-api-node.d';
 import * as THREE from "three";
 import * as WEBIFC from "web-ifc";
 import * as FRAGS from "@thatopen/fragments";
+import { CurveArc } from "./geometries/arc";
 
 export class CivilReader {
   defLineMat = new THREE.LineBasicMaterial({ color: 0xffffff });
@@ -18,18 +20,18 @@ export class CivilReader {
       IfcCrossSection3D,
     };
 
-    return this.get(civilItems);
+    return this.get(webIfc, civilItems);
   }
 
-  get(civilItems: any) {
+  get(webIfc: WEBIFC.IfcAPI, civilItems: any) {
     if (civilItems.IfcAlignment) {
       const alignments = new Map<number, FRAGS.Alignment>();
 
       for (const ifcAlign of civilItems.IfcAlignment) {
         const alignment = new FRAGS.Alignment();
-        alignment.absolute = this.getCurves(ifcAlign.curve3D, alignment);
-        alignment.horizontal = this.getCurves(ifcAlign.horizontal, alignment);
-        alignment.vertical = this.getCurves(ifcAlign.vertical, alignment);
+        alignment.absolute = this.getCurves(webIfc, ifcAlign.curve3D, alignment);
+        alignment.horizontal = this.getCurves(webIfc, ifcAlign.horizontal, alignment);
+        alignment.vertical = this.getCurves(webIfc, ifcAlign.vertical, alignment);
         alignments.set(alignments.size, alignment);
       }
 
@@ -38,7 +40,7 @@ export class CivilReader {
     return undefined;
   }
 
-  private getCurves(ifcAlignData: any, alignment: FRAGS.Alignment) {
+  private getCurves(webIfc: WEBIFC.IfcAPI, ifcAlignData: any, alignment: FRAGS.Alignment) {
     const curves: FRAGS.CivilCurve[] = [];
     let index = 0;
     for (const curve of ifcAlignData) {
@@ -51,9 +53,44 @@ export class CivilReader {
         }
       }
 
-      console.log(data)
+      let { points } = curve;
 
-      const { points } = curve;
+      if (curve.data && curve.data.length > 4 && curve.data[1].includes("CIRCULARARC")) {
+        const arc = new CurveArc(webIfc);
+        const rad = parseFloat(curve.data[2].split(":")[1].trim());
+        const srad = parseFloat(curve.data[3].split(":")[1].trim());
+        const erad = parseFloat(curve.data[4].split(":")[1].trim());
+        arc.radiusX = rad;
+        arc.radiusY = rad;
+        arc.endRad = erad;
+        arc.startRad = srad;
+        arc.startPosition = curve.points[0];
+        arc.update(webIfc);
+        
+        points = [];
+        console.log(arc.mesh.geometry.attributes.position);
+
+        for(let i = 0; i < arc.mesh.geometry.attributes.position.count; i++)
+        {
+          points.push({
+            x: arc.mesh.geometry.attributes.position.getX(i), 
+            y: arc.mesh.geometry.attributes.position.getY(i), 
+            z: arc.mesh.geometry.attributes.position.getZ(i)} );
+        }
+    }
+    else
+    {
+      points=[];
+    }
+
+      for (let i = 1; i < points.length; i++) {
+        points[i].x -= points[0].x;
+        points[i].y -= points[0].y;
+        points[i].z -= points[0].z;
+      }
+
+      points[0] = new THREE.Vector3(0,0,0);
+      
       const array = new Float32Array(points.length * 3);
       for (let i = 0; i < points.length; i++) {
         const { x, y, z } = points[i];
@@ -73,6 +110,8 @@ export class CivilReader {
         geometry,
         this.defLineMat,
       );
+
+      console.log(mesh.curve);
 
       curves.push(mesh.curve);
       index++;
