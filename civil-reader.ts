@@ -50,6 +50,51 @@ export class CivilReader {
         alignments.set(alignments.size, alignment);
       }
 
+
+      for (const ifcAlign of civilItems.IfcAlignment)
+      {
+        const alignment3D = webIfc.wasmModule.CreateAlignment() as WEBIFC.Alignment;
+
+        const horAlign = new webIfc.wasmModule.DoubleVector();
+        for (const curve of ifcAlign.horizontal) {
+            for (let p = 0; p < curve.points.length; p++) {
+                const pt = curve.points[p];
+                horAlign.push_back(pt.x);
+                horAlign.push_back(pt.y);
+                horAlign.push_back(pt.z);
+            }
+        }
+
+        const verAlign = new webIfc.wasmModule.DoubleVector();
+        for (const curve of ifcAlign.vertical) {
+            for (let p = 0; p < curve.points.length; p++) {
+                const pt = curve.points[p];
+                verAlign.push_back(pt.x);
+                verAlign.push_back(pt.y);
+                verAlign.push_back(pt.z);
+            }
+        }
+
+        const curve3DList: any[] = [];
+        alignment3D.SetValues(horAlign, verAlign);
+        const buffers = alignment3D.GetBuffers();
+        const vertexSize = buffers.fvertexData.size();
+        const vertices = new Float32Array(vertexSize);
+        for (let i = 0; i < vertexSize; i++) {
+            vertices[i] = buffers.fvertexData.get(i);
+        }       
+        const indexSize = buffers.indexData.size();
+        const indices: number[] = [];
+        for (let i = 0; i < indexSize; i++) {
+            indices[i] = buffers.indexData.get(i);
+        }
+        for(let i =0; i < vertexSize; i+=3)
+        {
+            const newPoint = { x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] };
+            curve3DList.push(newPoint);
+        }
+      }
+
       return { alignments, coordinationMatrix: new THREE.Matrix4() };
     }
     return undefined;

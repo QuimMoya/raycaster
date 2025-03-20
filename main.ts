@@ -110,12 +110,10 @@ async function main() {
   const civilReader = new CivilReader();
   const alignments = civilReader.read(api);
 
-  console.log(alignments);
   // console.log(ifcCrossSection2D);
   // console.log(ifcCrossSection3D);
-
   for(const [,alignment] of alignments.alignments) {
-    for(const {mesh} of alignment.horizontal) {
+    for(const {mesh} of alignment.absolute) {
       world.scene.three.add(mesh);
     }
   }
