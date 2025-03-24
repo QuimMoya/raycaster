@@ -103,7 +103,57 @@ async function main() {
     COORDINATE_TO_ORIGIN: true,
   });
 
-  api.StreamAllMeshes(modelId, () => {});
+  let first = true;
+  const material = new THREE.MeshLambertMaterial({color: "lightgray", transparent: true, opacity: 0.5})
+  api.StreamAllMeshes(modelId, (ifcmesh) => {
+    const size = ifcmesh.geometries.size()
+    for(let i = 0; i < size; i++) {
+      const geometryRef = ifcmesh.geometries.get(i);
+      const geometry = api.GetGeometry(0, geometryRef.geometryExpressID);
+      
+      const index = api.GetIndexArray(
+        geometry.GetIndexData(),
+        geometry.GetIndexDataSize(),
+      ) as Uint32Array;
+  
+      const vertexData = api.GetVertexArray(
+        geometry.GetVertexData(),
+        geometry.GetVertexDataSize(),
+      ) as Float32Array;
+  
+      const position = new Float32Array(vertexData.length / 2);
+      const normal = new Float32Array(vertexData.length / 2);
+  
+      for (let i = 0; i < vertexData.length; i += 6) {
+        position[i / 2] = vertexData[i];
+        position[i / 2 + 1] = vertexData[i + 1];
+        position[i / 2 + 2] = vertexData[i + 2];
+  
+        normal[i / 2] = vertexData[i + 3];
+        normal[i / 2 + 1] = vertexData[i + 4];
+        normal[i / 2 + 2] = vertexData[i + 5];
+      }
+  
+      const bufferGeometry = new THREE.BufferGeometry();
+      const posAttr = new THREE.BufferAttribute(position, 3);
+      const norAttr = new THREE.BufferAttribute(normal, 3);
+      bufferGeometry.setAttribute("position", posAttr);
+      bufferGeometry.setAttribute("normal", norAttr);
+      bufferGeometry.setIndex(Array.from(index));
+  
+      geometry.delete();
+
+      const mat = new THREE.Matrix4().fromArray(geometryRef.flatTransformation)
+      const mesh = new THREE.Mesh(bufferGeometry, material)
+      mesh.applyMatrix4(mat)
+      world.scene.three.add(mesh)
+
+      if(first) {
+        first = false;
+        world.camera.controls.fitToBox(mesh, true)
+      }
+    }
+  });
 
   // Get explicit aligments
 
