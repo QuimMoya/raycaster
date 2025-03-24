@@ -7,10 +7,13 @@ import { CurveArc } from "./geometries/arc";
 import { CurveParabola } from './geometries/parabola';
 
 export class CivilReader {
-  defLineMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+  defLineMat = new THREE.LineBasicMaterial({ color: 0x0000ff,
+    side: THREE.DoubleSide,
+    depthTest: false,
+    transparent: true,
+   });
   redLineMat = new THREE.LineBasicMaterial({
     color: 0xff0000,
-    side: THREE.DoubleSide,
   });
 
   read(webIfc: WEBIFC.IfcAPI) {
@@ -51,53 +54,59 @@ export class CivilReader {
       }
 
 
-      // /// Como estraer la curva 3D a partir de la horizontal y la vertical
+      /// Como estraer la curva 3D a partir de la horizontal y la vertical
+      const newAlignment: THREE.Line[] = [];
 
-      // for (const ifcAlign of civilItems.IfcAlignment)
-      // {
-      //   // Creamos una alineación
-      //   const alignment3D = webIfc.wasmModule.CreateAlignment() as WEBIFC.Alignment;
+      for (const ifcAlign of civilItems.IfcAlignment)
+      {
+        // Creamos una alineación
+        const alignment3D = webIfc.wasmModule.CreateAlignment() as WEBIFC.Alignment;
 
-      //   // Cargamos datos de la curva horizontal
-      //   const horAlign = new webIfc.wasmModule.DoubleVector();
-      //   for (const curve of ifcAlign.horizontal) {
-      //       for (let p = 0; p < curve.points.length; p++) {
-      //           const pt = curve.points[p];
-      //           horAlign.push_back(pt.x);
-      //           horAlign.push_back(pt.y);
-      //           horAlign.push_back(pt.z);
-      //       }
-      //   }
+        // Cargamos datos de la curva horizontal
+        const horAlign = new webIfc.wasmModule.DoubleVector();
+        for (const curve of ifcAlign.horizontal) {
+            for (let p = 0; p < curve.points.length; p++) {
+                const pt = curve.points[p];
+                horAlign.push_back(pt.x);
+                horAlign.push_back(pt.y);
+                horAlign.push_back(pt.z);
+            }
+        }
 
-      //   // Cargamos datos de la curva vertical
-      //   const verAlign = new webIfc.wasmModule.DoubleVector();
-      //   for (const curve of ifcAlign.vertical) {
-      //       for (let p = 0; p < curve.points.length; p++) {
-      //           const pt = curve.points[p];
-      //           verAlign.push_back(pt.x);
-      //           verAlign.push_back(pt.y);
-      //           verAlign.push_back(pt.z);
-      //       }
-      //   }
+        // Cargamos datos de la curva vertical
+        const verAlign = new webIfc.wasmModule.DoubleVector();
+        for (const curve of ifcAlign.vertical) {
+            for (let p = 0; p < curve.points.length; p++) {
+                const pt = curve.points[p];
+                verAlign.push_back(pt.x);
+                verAlign.push_back(pt.y);
+                verAlign.push_back(pt.z);
+            }
+        }
 
-      //   // Asignamos valores y construimos la curva
-      //   const curve3DList: any[] = [];
-      //   alignment3D.SetValues(horAlign, verAlign);
-      //   const buffers = alignment3D.GetBuffers();
+        // Asignamos valores y construimos la curva
+        const curve3DList: number[] = [];
+        alignment3D.SetValues(horAlign, verAlign);
+        const buffers = alignment3D.GetBuffers();
 
-      //   const vertexSize = buffers.fvertexData.size();
-      //   const vertices = new Float32Array(vertexSize);
-      //   for (let i = 0; i < vertexSize; i++) {
-      //       vertices[i] = buffers.fvertexData.get(i);
-      //   }       
-      //   for(let i =0; i < vertexSize; i+=3)
-      //   {
-      //       const newPoint = { x: vertices[i], y: vertices[i + 1], z: vertices[i + 2] };
-      //       curve3DList.push(newPoint);
-      //   }
-      // }
+        const vertexSize = buffers.fvertexData.size();
+        const vertices = new Float32Array(vertexSize);
+        for (let i = 0; i < vertexSize; i++) {
+            vertices[i] = buffers.fvertexData.get(i);
+        }       
+        for(let i =0; i < vertexSize; i+=3)
+        {
+            curve3DList.push(vertices[i], vertices[i + 1], vertices[i + 2])
+        }
 
-      return { alignments, coordinationMatrix: new THREE.Matrix4() };
+        const positionAttr = new Float32Array(curve3DList);
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positionAttr, 3));
+        const line = new THREE.Line(geometry, this.redLineMat);
+        newAlignment.push(line);
+      }
+
+      return { alignments, coordinationMatrix: new THREE.Matrix4(), newAlignment  };
     }
     return undefined;
   }
@@ -256,6 +265,9 @@ export class CivilReader {
     const angle1 = Math.atan2(v1.y, v1.x);
     const angle2 = Math.atan2(v2.y, v2.x);
     const rotationAngle = angle1 - angle2;
+
+    // translation: x, y, z
+    // rotationz: x, y, z
 
     // 3️⃣ Aplicar transformació a tota la corba 2
     let transformedCurve = curve2.map(point => {
