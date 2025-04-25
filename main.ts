@@ -1,3 +1,4 @@
+import { Sweep } from './node_modules/web-ifc/web-ifc-api.d';
 import * as THREE from "three";
 import * as OBC from "@thatopen/components";
 import Stats from "stats.js";
@@ -6,10 +7,13 @@ import * as WEBIFC from "web-ifc";
 import GUI from "lil-gui";
 import { Bbox } from "./geometries/bbox";
 import { Extrude } from "./geometries/extrude";
+import { Sweeping} from "./geometries/sweep";
+import { Revolve} from "./geometries/revolve";
 import { CurveParabola } from "./geometries/parabola";
 import { CurveClothoid } from './geometries/clothoid';
 import { CurveArc } from "./geometries/arc";
 import { CivilReader } from "./civil-reader";
+import { CylindricalRevolution } from './geometries/cylindricaRevolve';
 
 async function main() {
   // Set up scene
@@ -64,7 +68,33 @@ async function main() {
   // const extrude = new Extrude(api);
   // world.scene.three.add(extrude.mesh);
   // gui.add(extrude, "len", 1, 3, 0.05).onChange(() => extrude.update(api));
-  
+
+  // // SWEEP
+  // const sweep = new Sweeping(api);
+  // world.scene.three.add(sweep.mesh);
+  // gui.add(sweep, "close").onChange(() => sweep.update(api));
+  // gui.add(sweep, "rotate90").onChange(() => sweep.update(api));
+  // gui.add(sweep, "optimize").onChange(() => sweep.update(api));
+  // gui.add(sweep, "lenght", 0.5, 20, 0.05).onChange(() => sweep.update(api));
+
+  // // REVOLVE
+  // const revolve = new Revolve(api);
+  // world.scene.three.add(revolve.mesh);
+  // gui.add(revolve, "startDegrees", -360, 360, 0.05).onChange(() => revolve.update(api));
+  // gui.add(revolve, "endDegrees", -360, 360, 0.05).onChange(() => revolve.update(api));
+  // gui.add(revolve, "numRots", 3, 100, 1).onChange(() => revolve.update(api));
+
+  // REVOLVE
+  const revolveCyl = new CylindricalRevolution(api);
+  world.scene.three.add(revolveCyl.mesh);
+  gui.add(revolveCyl, "startDegrees", -360, 360, 0.05).onChange(() => revolveCyl.update(api));
+  gui.add(revolveCyl, "endDegrees", -360, 360, 0.05).onChange(() => revolveCyl.update(api));
+  gui.add(revolveCyl, "minZ", -10, 0, 0.05).onChange(() => revolveCyl.update(api));
+  gui.add(revolveCyl, "maxZ", -0, 10, 0.05).onChange(() => revolveCyl.update(api));
+  gui.add(revolveCyl, "radius", 0.05, 10, 0.05).onChange(() => revolveCyl.update(api));
+  gui.add(revolveCyl, "numRots", 3, 100, 1).onChange(() => revolveCyl.update(api));
+
+
   // PARABOLA
   // const parabola = new CurveParabola(api);
   // world.scene.three.add(parabola.mesh);
@@ -94,88 +124,94 @@ async function main() {
   // gui.add(arc, "swap").onChange(() => arc.update(api));
   // gui.add(arc, "normalToCenterEnding").onChange(() => arc.update(api));
 
-  // Open model
+  // // Open model
   
-  const fetched = await fetch("(E28)_CARRETERA_10.94_4X3.ifc");
-  const arrayBuffer = await fetched.arrayBuffer();
-  const uint8Array = new Uint8Array(arrayBuffer);
-  const modelId = api.OpenModel(uint8Array, {
-    COORDINATE_TO_ORIGIN: true,
-  });
+  // const fetched = await fetch("(E28)_CARRETERA_10.94_4X3.ifc");
+  // const arrayBuffer = await fetched.arrayBuffer();
+  // const uint8Array = new Uint8Array(arrayBuffer);
+  // const modelId = api.OpenModel(uint8Array, {
+  //   COORDINATE_TO_ORIGIN: true,
+  // });
 
-  let first = true;
-  const material = new THREE.MeshLambertMaterial({color: "lightgray", transparent: true, opacity: 0.5})
-  api.StreamAllMeshes(modelId, (ifcmesh) => {
-    const size = ifcmesh.geometries.size()
-    for(let i = 0; i < size; i++) {
-      const geometryRef = ifcmesh.geometries.get(i);
-      const geometry = api.GetGeometry(0, geometryRef.geometryExpressID);
+  // let first = true;
+  // const material = new THREE.MeshLambertMaterial({color: "lightgray", transparent: true, opacity: 0.5})
+  // api.StreamAllMeshes(modelId, (ifcmesh) => {
+  //   const size = ifcmesh.geometries.size()
+  //   for(let i = 0; i < size; i++) {
+  //     const geometryRef = ifcmesh.geometries.get(i);
+  //     const geometry = api.GetGeometry(0, geometryRef.geometryExpressID);
       
-      const index = api.GetIndexArray(
-        geometry.GetIndexData(),
-        geometry.GetIndexDataSize(),
-      ) as Uint32Array;
+  //     const index = api.GetIndexArray(
+  //       geometry.GetIndexData(),
+  //       geometry.GetIndexDataSize(),
+  //     ) as Uint32Array;
   
-      const vertexData = api.GetVertexArray(
-        geometry.GetVertexData(),
-        geometry.GetVertexDataSize(),
-      ) as Float32Array;
+  //     const vertexData = api.GetVertexArray(
+  //       geometry.GetVertexData(),
+  //       geometry.GetVertexDataSize(),
+  //     ) as Float32Array;
   
-      const position = new Float32Array(vertexData.length / 2);
-      const normal = new Float32Array(vertexData.length / 2);
+  //     const position = new Float32Array(vertexData.length / 2);
+  //     const normal = new Float32Array(vertexData.length / 2);
   
-      for (let i = 0; i < vertexData.length; i += 6) {
-        position[i / 2] = vertexData[i];
-        position[i / 2 + 1] = vertexData[i + 1];
-        position[i / 2 + 2] = vertexData[i + 2];
+  //     for (let i = 0; i < vertexData.length; i += 6) {
+  //       position[i / 2] = vertexData[i];
+  //       position[i / 2 + 1] = vertexData[i + 1];
+  //       position[i / 2 + 2] = vertexData[i + 2];
   
-        normal[i / 2] = vertexData[i + 3];
-        normal[i / 2 + 1] = vertexData[i + 4];
-        normal[i / 2 + 2] = vertexData[i + 5];
-      }
+  //       normal[i / 2] = vertexData[i + 3];
+  //       normal[i / 2 + 1] = vertexData[i + 4];
+  //       normal[i / 2 + 2] = vertexData[i + 5];
+  //     }
   
-      const bufferGeometry = new THREE.BufferGeometry();
-      const posAttr = new THREE.BufferAttribute(position, 3);
-      const norAttr = new THREE.BufferAttribute(normal, 3);
-      bufferGeometry.setAttribute("position", posAttr);
-      bufferGeometry.setAttribute("normal", norAttr);
-      bufferGeometry.setIndex(Array.from(index));
+  //     const bufferGeometry = new THREE.BufferGeometry();
+  //     const posAttr = new THREE.BufferAttribute(position, 3);
+  //     const norAttr = new THREE.BufferAttribute(normal, 3);
+  //     bufferGeometry.setAttribute("position", posAttr);
+  //     bufferGeometry.setAttribute("normal", norAttr);
+  //     bufferGeometry.setIndex(Array.from(index));
   
-      geometry.delete();
+  //     geometry.delete();
 
-      const mat = new THREE.Matrix4().fromArray(geometryRef.flatTransformation)
-      const mesh = new THREE.Mesh(bufferGeometry, material)
-      mesh.applyMatrix4(mat)
-      world.scene.three.add(mesh)
+  //     const mat = new THREE.Matrix4().fromArray(geometryRef.flatTransformation)
+  //     const mesh = new THREE.Mesh(bufferGeometry, material)
+  //     mesh.applyMatrix4(mat)
+  //     world.scene.three.add(mesh)
 
-      if(first) {
-        first = false;
-        world.camera.controls.fitToBox(mesh, true)
-      }
-    }
-  });
+  //     if(first) {
+  //       first = false;
+  //       world.camera.controls.fitToBox(mesh, true)
+  //     }
+  //   }
+  // });
 
-  // Get explicit aligments
+  // // // Get explicit aligments
 
-  const civilReader = new CivilReader();
-  const alignments = civilReader.read(api);
-  console.log(alignments)
+  // const civilReader = new CivilReader();
+  // const alignments = civilReader.read(api);
+  // console.log(alignments)
 
-  for(const line of alignments.newAlignment) {
-    world.scene.three.add(line)
-  }
-
-  for(const [,alignment] of alignments.alignments) {
-    for(const {mesh} of alignment.absolute) {
-      world.scene.three.add(mesh);
-    }
-  }
+  // for(const line of alignments.newAlignment) {
+  //   world.scene.three.add(line)
+  // }
 
   // for(const [,alignment] of alignments.alignments) {
   //   for(const {mesh} of alignment.absolute) {
   //     world.scene.three.add(mesh);
   //   }
   // }
+
+  // for(const [,alignment] of alignments.alignments) {
+  //   for(const {mesh} of alignment.absolute) {
+  //     world.scene.three.add(mesh);
+  //   }
+  // }
+
+  // // for(const [,alignment] of alignments.alignments) {
+  // //   for(const {mesh} of alignment.absolute) {
+  // //     world.scene.three.add(mesh);
+  // //   }
+  // // }
 
 }
 

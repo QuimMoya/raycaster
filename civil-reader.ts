@@ -72,7 +72,27 @@ export class CivilReader {
                 horAlign.push_back(pt.z);
             }
         }
+        // Cargamos datos de la curva horizontal
+        const horAlign = new webIfc.wasmModule.DoubleVector();
+        for (const curve of ifcAlign.horizontal) {
+            for (let p = 0; p < curve.points.length; p++) {
+                const pt = curve.points[p];
+                horAlign.push_back(pt.x);
+                horAlign.push_back(pt.y);
+                horAlign.push_back(pt.z);
+            }
+        }
 
+        // Cargamos datos de la curva vertical
+        const verAlign = new webIfc.wasmModule.DoubleVector();
+        for (const curve of ifcAlign.vertical) {
+            for (let p = 0; p < curve.points.length; p++) {
+                const pt = curve.points[p];
+                verAlign.push_back(pt.x);
+                verAlign.push_back(pt.y);
+                verAlign.push_back(pt.z);
+            }
+        }
         // Cargamos datos de la curva vertical
         const verAlign = new webIfc.wasmModule.DoubleVector();
         for (const curve of ifcAlign.vertical) {
