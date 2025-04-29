@@ -65,9 +65,10 @@ async function main() {
   // gui.add(aabb.min, "z", -1, 0, 0.05).onChange(() => aabb.update());
 
   // EXTRUDE
-  // const extrude = new Extrude(api);
-  // world.scene.three.add(extrude.mesh);
-  // gui.add(extrude, "len", 1, 3, 0.05).onChange(() => extrude.update(api));
+  const extrude = new Extrude(api);
+  world.scene.three.add(extrude.mesh);
+  gui.add(extrude, "len", 1, 3, 0.05).onChange(() => extrude.update(api));
+  gui.add(extrude, "cap").onChange(() => extrude.update(api));
 
   // // SWEEP
   // const sweep = new Sweeping(api);
@@ -84,18 +85,18 @@ async function main() {
   // gui.add(revolve, "endDegrees", -360, 360, 0.05).onChange(() => revolve.update(api));
   // gui.add(revolve, "numRots", 3, 100, 1).onChange(() => revolve.update(api));
 
-  // REVOLVE
-  const revolveCyl = new CylindricalRevolution(api);
-  world.scene.three.add(revolveCyl.mesh);
-  gui.add(revolveCyl, "startDegrees", -360, 360, 0.05).onChange(() => revolveCyl.update(api));
-  gui.add(revolveCyl, "endDegrees", -360, 360, 0.05).onChange(() => revolveCyl.update(api));
-  gui.add(revolveCyl, "minZ", -10, 0, 0.05).onChange(() => revolveCyl.update(api));
-  gui.add(revolveCyl, "maxZ", -0, 10, 0.05).onChange(() => revolveCyl.update(api));
-  gui.add(revolveCyl, "radius", 0.05, 10, 0.05).onChange(() => revolveCyl.update(api));
-  gui.add(revolveCyl, "numRots", 3, 100, 1).onChange(() => revolveCyl.update(api));
+  // // REVOLVE
+  // const revolveCyl = new CylindricalRevolution(api);
+  // world.scene.three.add(revolveCyl.mesh);
+  // gui.add(revolveCyl, "startDegrees", -360, 360, 0.05).onChange(() => revolveCyl.update(api));
+  // gui.add(revolveCyl, "endDegrees", -360, 360, 0.05).onChange(() => revolveCyl.update(api));
+  // gui.add(revolveCyl, "minZ", -10, 0, 0.05).onChange(() => revolveCyl.update(api));
+  // gui.add(revolveCyl, "maxZ", -0, 10, 0.05).onChange(() => revolveCyl.update(api));
+  // gui.add(revolveCyl, "radius", 0.05, 10, 0.05).onChange(() => revolveCyl.update(api));
+  // gui.add(revolveCyl, "numRots", 3, 100, 1).onChange(() => revolveCyl.update(api));
 
 
-  // PARABOLA
+  // // PARABOLA
   // const parabola = new CurveParabola(api);
   // world.scene.three.add(parabola.mesh);
   // gui.add(parabola, "segments", 3, 100, 1).onChange(() => parabola.update(api));
@@ -113,7 +114,7 @@ async function main() {
   // gui.add(clothoid, "EndRadiusOfCurvature", -10, 10, 0.05).onChange(() => clothoid.update(api));
   // gui.add(clothoid, "SegmentLength", -10, 10, 0.05).onChange(() => clothoid.update(api));
 
-  // Arc
+  // // Arc
   // const arc = new CurveArc(api);
   // world.scene.three.add(arc.mesh);
   // gui.add(arc, "numSegments", 3, 100, 1).onChange(() => arc.update(api));
