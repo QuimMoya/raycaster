@@ -14,6 +14,7 @@ import { CurveClothoid } from './geometries/clothoid';
 import { CurveArc } from "./geometries/arc";
 import { CivilReader } from "./civil-reader";
 import { CylindricalRevolution } from './geometries/cylindricaRevolve';
+import { CircularSweeping } from './geometries/circularSweep';
 
 async function main() {
   // Set up scene
@@ -64,11 +65,11 @@ async function main() {
   // gui.add(aabb.min, "y", -1, 0, 0.05).onChange(() => aabb.update());
   // gui.add(aabb.min, "z", -1, 0, 0.05).onChange(() => aabb.update());
 
-  // EXTRUDE
-  const extrude = new Extrude(api);
-  world.scene.three.add(extrude.mesh);
-  gui.add(extrude, "len", 1, 3, 0.05).onChange(() => extrude.update(api));
-  gui.add(extrude, "cap").onChange(() => extrude.update(api));
+  // // EXTRUDE
+  // const extrude = new Extrude(api);
+  // world.scene.three.add(extrude.mesh);
+  // gui.add(extrude, "len", 1, 3, 0.05).onChange(() => extrude.update(api));
+  // gui.add(extrude, "cap").onChange(() => extrude.update(api));
 
   // // SWEEP
   // const sweep = new Sweeping(api);
@@ -77,6 +78,14 @@ async function main() {
   // gui.add(sweep, "rotate90").onChange(() => sweep.update(api));
   // gui.add(sweep, "optimize").onChange(() => sweep.update(api));
   // gui.add(sweep, "lenght", 0.5, 20, 0.05).onChange(() => sweep.update(api));
+
+  // CIRCULARSWEEP
+  const sweep = new CircularSweeping(api);
+  world.scene.three.add(sweep.mesh);
+  gui.add(sweep, "close").onChange(() => sweep.update(api));
+  gui.add(sweep, "radius", 0.1, 5, 0.05).onChange(() => sweep.update(api));
+  gui.add(sweep, "rotate90").onChange(() => sweep.update(api));
+  gui.add(sweep, "lenght", 0.5, 20, 0.05).onChange(() => sweep.update(api));
 
   // // REVOLVE
   // const revolve = new Revolve(api);
