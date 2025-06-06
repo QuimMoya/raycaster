@@ -17,7 +17,7 @@ export class Wall extends BimGeometry {
   dir = new THREE.Vector3(0, 1, 0);
   cuttingPlaneNormal = new THREE.Vector3(0, 1, 0);
   cuttingPlanePos = new THREE.Vector3(0, this.elevationY, 0);
-
+  offset = 0;
 
   constructor(api: WEBIFC.IfcAPI) {
     super();
@@ -32,6 +32,12 @@ export class Wall extends BimGeometry {
     const horizontalVec = new THREE.Vector3(this.endX - this.startX, this.elevationY, this.endZ - this.startZ);
     const yAxis = new THREE.Vector3(0, 1, 0);
     const thicknessDir = new THREE.Vector3().crossVectors(horizontalVec, yAxis).normalize();
+
+
+    const offsetVec = thicknessDir.clone().multiplyScalar(this.offset);
+    endVec.add(offsetVec);
+    startVec.add(offsetVec);
+
     const delta = thicknessDir.clone().multiplyScalar(this.thickness / 2);
     const rectanglePoints =
       [

@@ -81,7 +81,7 @@ async function main() {
   gui.add(wall, "elevationY", -10, 10, 0.05).onChange(() => wall.update(api));
   gui.add(wall, "thickness", 0.3, 10, 0.05).onChange(() => wall.update(api));
   gui.add(wall, "height", 1, 10, 0.05).onChange(() => wall.update(api));  
-
+  gui.add(wall, "offset", -10, 10, 0.05).onChange(() => wall.update(api));
 
   // AABB
   // const aabb = new Bbox(api);
