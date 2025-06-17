@@ -14,6 +14,7 @@ import { CurveClothoid } from './geometries/clothoid';
 import { CurveArc } from "./geometries/arc";
 import { CivilReader } from "./civil-reader";
 import { CylindricalRevolution } from './geometries/cylindricaRevolve';
+import { BooleanOperation } from './geometries/boolean';
 import { Wall } from './geometries/wall';
 
 // GOAL:
@@ -71,17 +72,17 @@ async function main() {
 
   const gui = new GUI();
 
-  //WALL
-  const wall = new Wall(api);
-  world.scene.three.add(wall.mesh);
-  gui.add(wall, "startX", 0, 10, 0.05).onChange(() => wall.update(api));  
-  gui.add(wall, "startZ", 0, 10, 0.05).onChange(() => wall.update(api));
-  gui.add(wall, "endX", 0, 10, 0.05).onChange(() => wall.update(api));
-  gui.add(wall, "endZ", 0, 10, 0.05).onChange(() => wall.update(api));
-  gui.add(wall, "elevationY", -10, 10, 0.05).onChange(() => wall.update(api));
-  gui.add(wall, "thickness", 0.3, 10, 0.05).onChange(() => wall.update(api));
-  gui.add(wall, "height", 1, 10, 0.05).onChange(() => wall.update(api));  
-  gui.add(wall, "offset", -10, 10, 0.05).onChange(() => wall.update(api));
+  // //WALL
+  // const wall = new Wall(api);
+  // world.scene.three.add(wall.mesh);
+  // gui.add(wall, "startX", 0, 10, 0.05).onChange(() => wall.update(api));  
+  // gui.add(wall, "startZ", 0, 10, 0.05).onChange(() => wall.update(api));
+  // gui.add(wall, "endX", 0, 10, 0.05).onChange(() => wall.update(api));
+  // gui.add(wall, "endZ", 0, 10, 0.05).onChange(() => wall.update(api));
+  // gui.add(wall, "elevationY", -10, 10, 0.05).onChange(() => wall.update(api));
+  // gui.add(wall, "thickness", 0.3, 10, 0.05).onChange(() => wall.update(api));
+  // gui.add(wall, "height", 1, 10, 0.05).onChange(() => wall.update(api));  
+  // gui.add(wall, "offset", -10, 10, 0.05).onChange(() => wall.update(api));
 
   // AABB
   // const aabb = new Bbox(api);
@@ -89,6 +90,14 @@ async function main() {
   // gui.add(aabb.min, "x", -1, 0, 0.05).onChange(() => aabb.update());
   // gui.add(aabb.min, "y", -1, 0, 0.05).onChange(() => aabb.update());
   // gui.add(aabb.min, "z", -1, 0, 0.05).onChange(() => aabb.update());
+
+  // BOOLEAN
+  const booleanOper = new BooleanOperation(api);
+  world.scene.three.add(booleanOper.mesh);
+  gui.add(booleanOper, "offsetX").onChange(() => booleanOper.update(api));
+  gui.add(booleanOper, "offsetY").onChange(() => booleanOper.update(api));
+  gui.add(booleanOper, "offsetZ").onChange(() => booleanOper.update(api));
+  gui.add(booleanOper, 'op', { UNION: 'UNION', DIFFERENCE: 'DIFFERENCE' } ).onChange(() => booleanOper.update(api));;
 
   // EXTRUDE
   // const extrude = new Extrude(api);

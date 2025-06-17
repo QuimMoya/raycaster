@@ -28,5 +28,7 @@ export class BimGeometry {
     const { geometry } = this.mesh;
     geometry.setIndex(indices);
     geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+
+    geometry.computeVertexNormals();
   }
 }
