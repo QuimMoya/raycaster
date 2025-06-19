@@ -15,7 +15,7 @@ import { CurveArc } from "./geometries/arc";
 import { CivilReader } from "./civil-reader";
 import { CylindricalRevolution } from './geometries/cylindricaRevolve';
 import { BooleanOperation } from './geometries/boolean';
-import { Profile_I } from './geometries/profileI';
+import { Profile } from './geometries/profile';
 import { Wall } from './geometries/wall';
 
 // GOAL:
@@ -106,7 +106,7 @@ async function main() {
   // gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
 
   // PROFILEI
-  const profileI = new Profile_I(api);
+  const profile = new Profile(api);
 
   // EXTRUDE
   const extrude = new Extrude(api);
@@ -118,7 +118,7 @@ async function main() {
 
   // Function to update extrude profile from profileI geometry
   function updateExtrudeProfile() {
-    const buffers = profileI.mesh.geometry.attributes.position.array;
+    const buffers = profile.mesh.geometry.attributes.position.array;
     extrude.profile.points = [];
 
     for (let i = 0; i < buffers.length; i += 3) {
@@ -150,11 +150,17 @@ async function main() {
     "profileThick",
     "profileFlangeThick",
     "profileRadius",
+    "radius",
+    "slope",
   ];
 
+  gui.add(profile, "pType", 0, 5, 1).onChange(() => {
+      profile.update(api);
+      updateExtrudeProfile();
+    });
   for (const param of profileParams) {
-    gui.add(profileI, param, 0.001, 0.5, 0.0005).onChange(() => {
-      profileI.update(api);
+    gui.add(profile, param, 0.001, 0.5, 0.0005).onChange(() => {
+      profile.update(api);
       updateExtrudeProfile();
     });
   }
