@@ -15,6 +15,7 @@ import { CurveArc } from "./geometries/arc";
 import { CivilReader } from "./civil-reader";
 import { CylindricalRevolution } from './geometries/cylindricaRevolve';
 import { BooleanOperation } from './geometries/boolean';
+import { Profile_I } from './geometries/profileI';
 import { Wall } from './geometries/wall';
 
 // GOAL:
@@ -91,18 +92,78 @@ async function main() {
   // gui.add(aabb.min, "y", -1, 0, 0.05).onChange(() => aabb.update());
   // gui.add(aabb.min, "z", -1, 0, 0.05).onChange(() => aabb.update());
 
-  // BOOLEAN
-  const booleanOper = new BooleanOperation(api);
-  world.scene.three.add(booleanOper.mesh);
-  gui.add(booleanOper, "offsetX").onChange(() => booleanOper.update(api));
-  gui.add(booleanOper, "offsetY").onChange(() => booleanOper.update(api));
-  gui.add(booleanOper, "offsetZ").onChange(() => booleanOper.update(api));
-  gui.add(booleanOper, 'op', { UNION: 'UNION', DIFFERENCE: 'DIFFERENCE' } ).onChange(() => booleanOper.update(api));;
+  // // BOOLEAN
+  // const booleanOper = new BooleanOperation(api);
+  // world.scene.three.add(booleanOper.mesh);
+  // gui.add(booleanOper, "offsetX").onChange(() => booleanOper.update(api));
+  // gui.add(booleanOper, "offsetY").onChange(() => booleanOper.update(api));
+  // gui.add(booleanOper, "offsetZ").onChange(() => booleanOper.update(api));
+  // gui.add(booleanOper, 'op', { UNION: 'UNION', DIFFERENCE: 'DIFFERENCE' } ).onChange(() => booleanOper.update(api));;
 
   // EXTRUDE
   // const extrude = new Extrude(api);
   // world.scene.three.add(extrude.mesh);
   // gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
+
+  // PROFILEI
+  const profileI = new Profile_I(api);
+
+  // EXTRUDE
+  const extrude = new Extrude(api);
+  extrude.holes = [];
+  extrude.profile.points = [];
+  extrude.dir = new THREE.Vector3(0, 1, 0);
+  extrude.loadDefault = false;
+  world.scene.three.add(extrude.mesh);
+
+  // Function to update extrude profile from profileI geometry
+  function updateExtrudeProfile() {
+    const buffers = profileI.mesh.geometry.attributes.position.array;
+    extrude.profile.points = [];
+
+    for (let i = 0; i < buffers.length; i += 3) {
+      extrude.profile.points.push({
+        x: buffers[i],
+        y: buffers[i + 1],
+        z: buffers[i + 2]
+      });
+    }
+
+    if (extrude.profile.points.length === 0) {
+      extrude.core.ClearHoles();
+      extrude.profile.points = [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        { x: 1, y: 0, z: 1 },
+        { x: 1, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 },
+      ];
+    }
+
+    extrude.update(api);
+  }
+
+  // Hook GUI changes to profile and call both profile and extrude updates
+  const profileParams = [
+    "profileWidth",
+    "profileDepth",
+    "profileThick",
+    "profileFlangeThick",
+    "profileRadius",
+  ];
+
+  for (const param of profileParams) {
+    gui.add(profileI, param, 0.001, 0.5, 0.0005).onChange(() => {
+      profileI.update(api);
+      updateExtrudeProfile();
+    });
+  }
+
+  // Initialize extrude with current profile
+  updateExtrudeProfile();
+
+  // GUI for extrude length
+  gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
 
   // // SWEEP
   // const sweep = new Sweeping(api);

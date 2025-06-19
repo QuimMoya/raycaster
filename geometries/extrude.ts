@@ -8,6 +8,7 @@ export class Extrude extends BimGeometry {
   zv = 0;
   len = 1;
   cap = true;
+  loadDefault = true;
   cuttingPlanePos = new THREE.Vector3(0, 0, 0);
   cuttingPlaneNormal = new THREE.Vector3(0, 0, 0);
   profile: Curve = { points: [], userData: [], arcSegments: [] };
@@ -20,9 +21,8 @@ export class Extrude extends BimGeometry {
     this.update(api);
   }
 
-  update(api: WEBIFC.IfcAPI): void {
-    // Define a square profile
-
+  loadDefaultData(): void
+  {
     this.profile.points = [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 1 },
@@ -55,6 +55,16 @@ export class Extrude extends BimGeometry {
         arcSegments: [],
       },
     ];
+  }
+
+  update(api: WEBIFC.IfcAPI): void {
+
+    // Define a square profile
+
+    if(this.loadDefault)
+    {
+      this.loadDefaultData();
+    }
 
     this.core.ClearHoles();
 
