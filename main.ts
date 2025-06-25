@@ -154,7 +154,7 @@ async function main() {
     "slope",
   ];
 
-  gui.add(profile, "pType", 0, 5, 1).onChange(() => {
+  gui.add(profile, "pType", 0, 7, 1).onChange(() => {
       profile.update(api);
       updateExtrudeProfile();
     });
