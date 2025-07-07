@@ -11,6 +11,12 @@ export class BimGeometry {
 
   constructor() {}
 
+  dispose() {
+    this.mesh.removeFromParent();
+    this.mesh.geometry.dispose();
+    this.mesh.material.dispose();
+  }
+
   update(api: WEBIFC.IfcAPI) {
     const buffers = this.core.GetBuffers();
     const vertexSize = buffers.fvertexData.size();

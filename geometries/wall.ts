@@ -33,7 +33,6 @@ export class Wall extends BimGeometry {
     const yAxis = new THREE.Vector3(0, 1, 0);
     const thicknessDir = new THREE.Vector3().crossVectors(horizontalVec, yAxis).normalize();
 
-
     const offsetVec = thicknessDir.clone().multiplyScalar(this.offset);
     endVec.add(offsetVec);
     startVec.add(offsetVec);

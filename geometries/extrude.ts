@@ -1,5 +1,5 @@
 import { BimGeometry } from "./bim-geometry";
-import { Extrusion, Point, Curve } from "web-ifc";
+import { Extrusion, Curve } from "web-ifc";
 import * as WEBIFC from "web-ifc";
 import * as THREE from "three";
 import { Profile } from "./profile";
