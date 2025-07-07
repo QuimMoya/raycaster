@@ -18,19 +18,6 @@ import { BooleanOperation } from './geometries/boolean';
 import { Profile } from './geometries/profile';
 import { Wall } from './geometries/wall';
 
-// GOAL:
-
-// 1. Create a parametric wall editor using web-ifc geometry engine
-// 1.a. Define wall by startpoint/endpoint, height, width, etc
-
-// It should look like this:
-// const wall = new Wall(api);
-// world.scene.three.add(wall.mesh);
-// gui.add(wall, "startPoint", -10, 10, 0.05).onChange(() => wall.update(api));
-// gui.add(wall, "endPoint", -10, 10, 0.05).onChange(() => wall.update(api));
-// gui.add(wall, "height", 1, 10, 0.05).onChange(() => wall.update(api));
-// gui.add(wall, "width", 1, 10, 0.05).onChange(() => wall.update(api));
-
 async function main() {
   // Set up scene
 
@@ -92,86 +79,54 @@ async function main() {
   // gui.add(aabb.min, "y", -1, 0, 0.05).onChange(() => aabb.update());
   // gui.add(aabb.min, "z", -1, 0, 0.05).onChange(() => aabb.update());
 
-  // // BOOLEAN
+  // BOOLEAN
   // const booleanOper = new BooleanOperation(api);
   // world.scene.three.add(booleanOper.mesh);
-  // gui.add(booleanOper, "offsetX").onChange(() => booleanOper.update(api));
-  // gui.add(booleanOper, "offsetY").onChange(() => booleanOper.update(api));
-  // gui.add(booleanOper, "offsetZ").onChange(() => booleanOper.update(api));
-  // gui.add(booleanOper, 'op', { UNION: 'UNION', DIFFERENCE: 'DIFFERENCE' } ).onChange(() => booleanOper.update(api));;
+  // gui.add(booleanOper, "offsetX", 0.3, 1, 0.05).onChange(() => booleanOper.update(api));
+  // gui.add(booleanOper, "offsetY", 0.3, 1, 0.05).onChange(() => booleanOper.update(api));
+  // gui.add(booleanOper, "offsetZ", 0.3, 1, 0.05).onChange(() => booleanOper.update(api));
+  // gui.add(booleanOper, 'op', { UNION: 'UNION', DIFFERENCE: 'DIFFERENCE' } ).onChange(() => booleanOper.update(api));
 
   // EXTRUDE
   // const extrude = new Extrude(api);
   // world.scene.three.add(extrude.mesh);
   // gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
 
-  // PROFILEI
-  const profile = new Profile(api);
+  // METAL PROFILES
 
-  // EXTRUDE
-  const extrude = new Extrude(api);
-  extrude.holes = [];
-  extrude.profile.points = [];
-  extrude.dir = new THREE.Vector3(0, 1, 0);
-  extrude.loadDefault = false;
-  world.scene.three.add(extrude.mesh);
+  // const extrude = new Extrude(api);
+  // extrude.holes = [];
+  // extrude.profile.curve.points = [];
+  // extrude.dir = new THREE.Vector3(0, 1, 0);
+  // extrude.loadDefault = false;
+  // world.scene.three.add(extrude.mesh);
 
-  // Function to update extrude profile from profileI geometry
-  function updateExtrudeProfile() {
-    const buffers = profile.mesh.geometry.attributes.position.array;
-    extrude.profile.points = [];
+  // const profileParams = [
+  //   "profileWidth",
+  //   "profileDepth",
+  //   "profileThick",
+  //   "profileFlangeThick",
+  //   "profileRadius",
+  //   "radius",
+  //   "slope",
+  // ];
 
-    for (let i = 0; i < buffers.length; i += 3) {
-      extrude.profile.points.push({
-        x: buffers[i],
-        y: buffers[i + 1],
-        z: buffers[i + 2]
-      });
-    }
+  // gui.add(extrude.profile, "pType", 0, 7, 1).onChange(() => {
+  //     extrude.profile.update(api);
+  //     extrude.update(api);
+  //   });
+  // for (const param of profileParams) {
+  //   gui.add(extrude.profile, (param as keyof Profile), 0.001, 0.5, 0.0005).onChange(() => {
+  //     extrude.profile.update(api);
+  //     extrude.update(api);
+  //   });
+  // }
 
-    if (extrude.profile.points.length === 0) {
-      extrude.core.ClearHoles();
-      extrude.profile.points = [
-        { x: 0, y: 0, z: 0 },
-        { x: 0, y: 0, z: 1 },
-        { x: 1, y: 0, z: 1 },
-        { x: 1, y: 0, z: 0 },
-        { x: 0, y: 0, z: 0 },
-      ];
-    }
+  // extrude.update(api);
 
-    extrude.update(api);
-  }
+  // gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
 
-  // Hook GUI changes to profile and call both profile and extrude updates
-  const profileParams = [
-    "profileWidth",
-    "profileDepth",
-    "profileThick",
-    "profileFlangeThick",
-    "profileRadius",
-    "radius",
-    "slope",
-  ];
-
-  gui.add(profile, "pType", 0, 7, 1).onChange(() => {
-      profile.update(api);
-      updateExtrudeProfile();
-    });
-  for (const param of profileParams) {
-    gui.add(profile, param, 0.001, 0.5, 0.0005).onChange(() => {
-      profile.update(api);
-      updateExtrudeProfile();
-    });
-  }
-
-  // Initialize extrude with current profile
-  updateExtrudeProfile();
-
-  // GUI for extrude length
-  gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
-
-  // // SWEEP
+  // SWEEP
   // const sweep = new Sweeping(api);
   // world.scene.three.add(sweep.mesh);
   // gui.add(sweep, "close").onChange(() => sweep.update(api));
@@ -179,7 +134,7 @@ async function main() {
   // gui.add(sweep, "optimize").onChange(() => sweep.update(api));
   // gui.add(sweep, "lenght", 0.5, 20, 0.05).onChange(() => sweep.update(api));
 
-  // // REVOLVE
+  // REVOLVE
   // const revolve = new Revolve(api);
   // world.scene.three.add(revolve.mesh);
   // gui.add(revolve, "startDegrees", -360, 360, 0.05).onChange(() => revolve.update(api));
@@ -215,7 +170,7 @@ async function main() {
   // gui.add(clothoid, "EndRadiusOfCurvature", -10, 10, 0.05).onChange(() => clothoid.update(api));
   // gui.add(clothoid, "SegmentLength", -10, 10, 0.05).onChange(() => clothoid.update(api));
 
-  // Arc
+  // ARC
   // const arc = new CurveArc(api);
   // world.scene.three.add(arc.mesh);
   // gui.add(arc, "numSegments", 3, 100, 1).onChange(() => arc.update(api));
@@ -225,95 +180,6 @@ async function main() {
   // gui.add(arc, "endRad", 0, 6.28, 0.05).onChange(() => arc.update(api));
   // gui.add(arc, "swap").onChange(() => arc.update(api));
   // gui.add(arc, "normalToCenterEnding").onChange(() => arc.update(api));
-
-  // // Open model
-  
-  // const fetched = await fetch("(E28)_CARRETERA_10.94_4X3.ifc");
-  // const arrayBuffer = await fetched.arrayBuffer();
-  // const uint8Array = new Uint8Array(arrayBuffer);
-  // const modelId = api.OpenModel(uint8Array, {
-  //   COORDINATE_TO_ORIGIN: true,
-  // });
-
-  // let first = true;
-  // const material = new THREE.MeshLambertMaterial({color: "lightgray", transparent: true, opacity: 0.5})
-  // api.StreamAllMeshes(modelId, (ifcmesh) => {
-  //   const size = ifcmesh.geometries.size()
-  //   for(let i = 0; i < size; i++) {
-  //     const geometryRef = ifcmesh.geometries.get(i);
-  //     const geometry = api.GetGeometry(0, geometryRef.geometryExpressID);
-      
-  //     const index = api.GetIndexArray(
-  //       geometry.GetIndexData(),
-  //       geometry.GetIndexDataSize(),
-  //     ) as Uint32Array;
-  
-  //     const vertexData = api.GetVertexArray(
-  //       geometry.GetVertexData(),
-  //       geometry.GetVertexDataSize(),
-  //     ) as Float32Array;
-  
-  //     const position = new Float32Array(vertexData.length / 2);
-  //     const normal = new Float32Array(vertexData.length / 2);
-  
-  //     for (let i = 0; i < vertexData.length; i += 6) {
-  //       position[i / 2] = vertexData[i];
-  //       position[i / 2 + 1] = vertexData[i + 1];
-  //       position[i / 2 + 2] = vertexData[i + 2];
-  
-  //       normal[i / 2] = vertexData[i + 3];
-  //       normal[i / 2 + 1] = vertexData[i + 4];
-  //       normal[i / 2 + 2] = vertexData[i + 5];
-  //     }
-  
-  //     const bufferGeometry = new THREE.BufferGeometry();
-  //     const posAttr = new THREE.BufferAttribute(position, 3);
-  //     const norAttr = new THREE.BufferAttribute(normal, 3);
-  //     bufferGeometry.setAttribute("position", posAttr);
-  //     bufferGeometry.setAttribute("normal", norAttr);
-  //     bufferGeometry.setIndex(Array.from(index));
-  
-  //     geometry.delete();
-
-  //     const mat = new THREE.Matrix4().fromArray(geometryRef.flatTransformation)
-  //     const mesh = new THREE.Mesh(bufferGeometry, material)
-  //     mesh.applyMatrix4(mat)
-  //     world.scene.three.add(mesh)
-
-  //     if(first) {
-  //       first = false;
-  //       world.camera.controls.fitToBox(mesh, true)
-  //     }
-  //   }
-  // });
-
-  // // // Get explicit aligments
-
-  // const civilReader = new CivilReader();
-  // const alignments = civilReader.read(api);
-  // console.log(alignments)
-
-  // for(const line of alignments.newAlignment) {
-  //   world.scene.three.add(line)
-  // }
-
-  // for(const [,alignment] of alignments.alignments) {
-  //   for(const {mesh} of alignment.absolute) {
-  //     world.scene.three.add(mesh);
-  //   }
-  // }
-
-  // for(const [,alignment] of alignments.alignments) {
-  //   for(const {mesh} of alignment.absolute) {
-  //     world.scene.three.add(mesh);
-  //   }
-  // }
-
-  // // for(const [,alignment] of alignments.alignments) {
-  // //   for(const {mesh} of alignment.absolute) {
-  // //     world.scene.three.add(mesh);
-  // //   }
-  // // }
 
 }
 

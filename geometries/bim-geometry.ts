@@ -29,6 +29,9 @@ export class BimGeometry {
     geometry.setIndex(indices);
     geometry.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
 
+    const normalArray = new Float32Array(vertexSize).fill(0);
+    geometry.setAttribute("normal", new THREE.BufferAttribute(normalArray, 3));
+
     geometry.computeVertexNormals();
   }
 }

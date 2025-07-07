@@ -2,6 +2,7 @@ import { BimGeometry } from "./bim-geometry";
 import { Extrusion, Point, Curve } from "web-ifc";
 import * as WEBIFC from "web-ifc";
 import * as THREE from "three";
+import { Profile } from "./profile";
 
 export class Extrude extends BimGeometry {
   core: Extrusion;
@@ -11,19 +12,20 @@ export class Extrude extends BimGeometry {
   loadDefault = true;
   cuttingPlanePos = new THREE.Vector3(0, 0, 0);
   cuttingPlaneNormal = new THREE.Vector3(0, 0, 0);
-  profile: Curve = { points: [], userData: [], arcSegments: [] };
   holes: Curve[] = [];
   dir = new THREE.Vector3(1, 1, 1);
+  profile: Profile;
 
   constructor(api: WEBIFC.IfcAPI) {
     super();
     this.core = api.CreateExtrusion() as Extrusion;
+    this.profile = new Profile(api);
     this.update(api);
   }
 
   loadDefaultData(): void
   {
-    this.profile.points = [
+    this.profile.curve.points = [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 1 },
       { x: 1, y: 0, z: 1 },
@@ -59,6 +61,28 @@ export class Extrude extends BimGeometry {
 
   update(api: WEBIFC.IfcAPI): void {
 
+    const buffers = this.profile.mesh.geometry.attributes.position.array;
+    this.profile.curve.points = [];
+
+    for (let i = 0; i < buffers.length; i += 3) {
+      this.profile.curve.points.push({
+        x: buffers[i],
+        y: buffers[i + 1],
+        z: buffers[i + 2]
+      });
+    }
+
+    if (this.profile.curve.points.length === 0) {
+      this.core.ClearHoles();
+      this.profile.curve.points = [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        { x: 1, y: 0, z: 1 },
+        { x: 1, y: 0, z: 0 },
+        { x: 0, y: 0, z: 0 },
+      ];
+    }
+
     // Define a square profile
 
     if(this.loadDefault)
@@ -72,7 +96,7 @@ export class Extrude extends BimGeometry {
 
     const profilePoints = new api.wasmModule.DoubleVector(); // Flat vector
 
-    this.profile.points.forEach((p) => {
+    this.profile.curve.points.forEach((p) => {
       profilePoints.push_back(p.x);
       profilePoints.push_back(p.y);
       profilePoints.push_back(p.z);

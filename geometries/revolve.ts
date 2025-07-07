@@ -2,6 +2,7 @@ import { BimGeometry } from "./bim-geometry";
 import { Revolution, Point, Curve } from "web-ifc";
 import * as WEBIFC from "web-ifc";
 import * as THREE from "three";
+import { Profile } from "./profile";
 
 export class Revolve extends BimGeometry {
   core: Revolution;
@@ -9,19 +10,20 @@ export class Revolve extends BimGeometry {
   startDegrees = 0.0;
   endDegrees = 180.0;
 
-  profile: Curve = { points: [], userData: [], arcSegments: [] };
+  profile: Profile;
   transform = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1];
 
   constructor(api: WEBIFC.IfcAPI) {
     super();
     this.core = api.CreateRevolution() as Revolution;
+    this.profile = new Profile(api);
     this.update(api);
   }
 
   update(api: WEBIFC.IfcAPI): void {
     // Define a square profile
 
-    this.profile.points = [
+    this.profile.curve.points = [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 1 },
       { x: 1, y: 0, z: 1 },
@@ -33,7 +35,7 @@ export class Revolve extends BimGeometry {
 
     const profilePoints = new api.wasmModule.DoubleVector(); // Flat vector
 
-    this.profile.points.forEach((p) => {
+    this.profile.curve.points.forEach((p) => {
       profilePoints.push_back(p.x);
       profilePoints.push_back(p.y);
       profilePoints.push_back(p.z);

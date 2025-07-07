@@ -13,7 +13,7 @@ export class Profile extends BimGeometry {
     profileRadius = 0.001;
     radius = 0.01;
     slope = 0.001;
-    profile: Curve = { points: [], userData: [], arcSegments: [] };
+    curve: Curve = { points: [], userData: [], arcSegments: [] };
 
     constructor(api: WEBIFC.IfcAPI) {
         super();
