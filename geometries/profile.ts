@@ -35,31 +35,30 @@ export class Profile extends BimGeometry {
         // 0 0 1 0
         // 0 0 0 1
 
-        for(const element of this.transform.matrix.elements) {
-            placement.push_back(element);
-        }
-        
-        // placement.push_back(1);
-        // placement.push_back(0);
-        // placement.push_back(0);
-        // placement.push_back(0);
+        // for(const element of this.transform.matrix.elements) {
+        //     placement.push_back(element);
+        // }
+        placement.push_back(1);
+        placement.push_back(0);
+        placement.push_back(0);
+        placement.push_back(0);
 
-        // placement.push_back(0);
-        // placement.push_back(1);
-        // placement.push_back(0);
-        // placement.push_back(0);
+        placement.push_back(0);
+        placement.push_back(0);
+        placement.push_back(1);
+        placement.push_back(0);
 
-        // placement.push_back(0);
-        // placement.push_back(0);
-        // placement.push_back(1);
-        // placement.push_back(0);
+        placement.push_back(0);
+        placement.push_back(1);
+        placement.push_back(0);
+        placement.push_back(0);
 
-        // placement.push_back(0);
-        // placement.push_back(0);
-        // placement.push_back(0);
-        // placement.push_back(1);
+        placement.push_back(0);
+        placement.push_back(0);
+        placement.push_back(0);
+        placement.push_back(1);
 
-        this.core.SetValues(this.pType, this.profileWidth, this.profileDepth, this.profileThick, this.profileFlangeThick, false, this.profileRadius, this.radius, this.slope, placement);
+        this.core.SetValues(this.pType, this.profileWidth, this.profileDepth, this.profileThick, this.profileFlangeThick, false, this.profileRadius, this.radius, this.slope, 12, placement);
 
         super.update(api);
     }

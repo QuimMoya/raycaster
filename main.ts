@@ -79,7 +79,7 @@ async function main() {
   // gui.add(aabb.min, "y", -1, 0, 0.05).onChange(() => aabb.update());
   // gui.add(aabb.min, "z", -1, 0, 0.05).onChange(() => aabb.update());
 
-  // BOOLEAN
+  // // BOOLEAN
   // const booleanOper = new BooleanOperation(api);
   // world.scene.three.add(booleanOper.mesh);
   // gui.add(booleanOper, "offsetX", 0.3, 1, 0.05).onChange(() => booleanOper.update(api));
@@ -94,37 +94,37 @@ async function main() {
 
   // METAL PROFILES
 
-  // const extrude = new Extrude(api);
-  // extrude.holes = [];
-  // extrude.profile.curve.points = [];
-  // extrude.dir = new THREE.Vector3(0, 1, 0);
-  // extrude.loadDefault = false;
-  // world.scene.three.add(extrude.mesh);
+  const extrude = new Extrude(api);
+  extrude.holes = [];
+  extrude.profile.curve.points = [];
+  extrude.dir = new THREE.Vector3(0, 1, 0);
+  extrude.loadDefault = false;
+  world.scene.three.add(extrude.mesh);
 
-  // const profileParams = [
-  //   "profileWidth",
-  //   "profileDepth",
-  //   "profileThick",
-  //   "profileFlangeThick",
-  //   "profileRadius",
-  //   "radius",
-  //   "slope",
-  // ];
+  const profileParams = [
+    "profileWidth",
+    "profileDepth",
+    "profileThick",
+    "profileFlangeThick",
+    "profileRadius",
+    "radius",
+    "slope",
+  ];
 
-  // gui.add(extrude.profile, "pType", 0, 7, 1).onChange(() => {
-  //     extrude.profile.update(api);
-  //     extrude.update(api);
-  //   });
-  // for (const param of profileParams) {
-  //   gui.add(extrude.profile, (param as keyof Profile), 0.001, 0.5, 0.0005).onChange(() => {
-  //     extrude.profile.update(api);
-  //     extrude.update(api);
-  //   });
-  // }
+  gui.add(extrude.profile, "pType", 0, 7, 1).onChange(() => {
+      extrude.profile.update(api);
+      extrude.update(api);
+    });
+  for (const param of profileParams) {
+    gui.add(extrude.profile, (param as keyof Profile), 0.001, 0.5, 0.0005).onChange(() => {
+      extrude.profile.update(api);
+      extrude.update(api);
+    });
+  }
 
-  // extrude.update(api);
+  extrude.update(api);
 
-  // gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
+  gui.add(extrude, "len", 1, 10, 0.05).onChange(() => extrude.update(api));
 
   // SWEEP
   // const sweep = new Sweeping(api);
