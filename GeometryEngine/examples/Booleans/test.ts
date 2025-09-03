@@ -63,7 +63,7 @@ const cube1 = new THREE.Mesh(
     opacity: 0.3,
   }),
 );
-world.scene.three.add(cube1);
+// world.scene.three.add(cube1);
 cube1.position.set(0.5, 0.5, 0.5);
 
 const cube2 = new THREE.Mesh(
@@ -78,6 +78,17 @@ const cube2 = new THREE.Mesh(
 cube2.position.set(1, 1, 1);
 world.scene.three.add(cube2);
 
+const cube3 = new THREE.Mesh(
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshLambertMaterial({
+    color: "blue",
+    side: 2,
+    transparent: true,
+    opacity: 0.3,
+  }),
+);
+world.scene.three.add(cube3);
+
 const result = new THREE.Mesh(
   new THREE.BoxGeometry(1, 1, 1),
   new THREE.MeshLambertMaterial({ color: "green", side: 2 }),
@@ -85,12 +96,13 @@ const result = new THREE.Mesh(
 world.scene.three.add(result);
 
 const update = () => {
-  cube1.updateWorldMatrix(true, true);
-  cube2.updateWorldMatrix(true, true);
+  cube1.updateMatrixWorld(true);
+  cube2.updateMatrixWorld(true);
+  cube3.updateMatrixWorld(true);
   geometryEngine.getBoolean(result.geometry, {
     type: "DIFFERENCE",
     target: cube1,
-    operands: [cube2],
+    operands: [cube2, cube3],
   });
   console.log(result.geometry);
 };
